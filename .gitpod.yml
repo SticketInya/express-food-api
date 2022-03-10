@@ -1,0 +1,8 @@
+tasks:
+  - init: yarn install --frozen-lockfile
+  - command: docker run --name redis -p 6379:6379 -d redis
+
+vscode:
+  extensions:
+    - EditorConfig.EditorConfig
+    - dbaeumer.vscode-eslint
