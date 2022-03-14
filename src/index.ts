@@ -1,11 +1,14 @@
 //TODO: build your application here
 import express, { NextFunction, Request, Response, Router } from 'express';
 
+const morgan = require('morgan');
 const PORT = parseInt(process.env.PORT || '3000', 10);
 
 const main = async (): Promise<void> => {
 //TODO: start your application here
   const app = express();
+
+  app.use(morgan('combined'));
 
   app.get('/', (req, res)=>{
     return res.send("Hello World!");
