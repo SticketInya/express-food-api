@@ -19,7 +19,7 @@ const main = async (): Promise<void> => {
   app.disable('x-powered-by');
 
   foodRouter.get('', (req, res)=>{
-    if(foods.length){
+    if(!foods.length){
       return res.sendStatus(204);
     }
     return res.status(200).send(foods);
