@@ -1,8 +1,9 @@
 //TODO: build your application here
 import express, { NextFunction, Request, Response, Router } from 'express';
 import {FoodEntry, FoodEntryCreateOptions, FoodEntryDetails, FoodEntryUpdateOptions} from './interfaces';
-import {randomUUID} from 'crypto';
+import {randomUUID, randomBytes} from 'crypto';
 
+const jwt = require('jsonwebtoken');
 const morgan = require('morgan');
 const PORT = parseInt(process.env.PORT || '3000', 10);
 
@@ -61,6 +62,21 @@ const main = async (): Promise<void> => {
     return res.sendStatus(204);
   })
 
+  app.post('/login', (req, res)=>{
+    // const validUsername: string = process.env.VALID_USERNAME;
+    // const validPassword: string = process.env.VALID_PASSWORD;
+    const validUsername: string = "Ben";
+    const validPassword: string = "admin";
+    const { username, password } = req.body;
+
+    if(username===validUsername && password===validPassword){
+      const privateKey = randomBytes(64).toString();
+      const signedToken = jwt.sign({user:username}, privateKey);
+
+      return res.status(200).send({token:signedToken});
+    }
+    return res.status(401).send({error:"invalid login credentials"});
+  })
 
   app.use('*',(req, res)=>{
     return res.status(404).send({error:'not found'});
