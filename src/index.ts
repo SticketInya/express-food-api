@@ -2,6 +2,7 @@
 import express, { NextFunction, Request, Response, Router } from 'express';
 import {FoodEntry, FoodEntryCreateOptions, FoodEntryDetails, FoodEntryUpdateOptions} from './interfaces';
 import {randomUUID, randomBytes} from 'crypto';
+import 'dotenv/config'
 
 const jwt = require('jsonwebtoken');
 const morgan = require('morgan');
@@ -26,37 +27,39 @@ const main = async (): Promise<void> => {
   })
 
   foodRouter.get('/:id', (req, res) =>{
-    const foodId = req.params.id.toString();
+    const { id: foodId } = req.params;
     const foodExists = foods.find(food => food.id === foodId);
-    if(foodExists===undefined){
+    if(!foodExists){
       return res.status(404).send({error:"food not found"});
     }
     return res.status(200).send(foodExists);
   })
 
   foodRouter.post('', (req, res)=>{
+    const { name, details } = req.body as { name:string, details:FoodEntryDetails };
     const newFoodEntry: FoodEntry ={
       id: randomUUID().toString(),
       createdAt: new Date(),
-      name: req.body.name,
+      name: name,
+      details: details,
     };
     foods.push(newFoodEntry);
     return res.status(201).send(newFoodEntry);
   })
 
   foodRouter.put('/:id', (req, res)=>{
-    const foodId = req.params.id.toString();
-    const foodDetails = req.body;
+    const { id: foodId } = req.params;
+    const foodUpdate = req.body;
     const foodIndex = foods.findIndex(food=>food.id === foodId);
     if(foodIndex === -1){
       return res.status(404).send('food not found');
     }
-    foods[foodIndex].name = foodDetails.name.toString();
+    foods[foodIndex].name = foodUpdate.name.toString();
     return res.status(200).send(foods[foodIndex]);
   })
 
   foodRouter.delete('/:id', (req, res)=>{
-    const foodId = req.params.id.toString();
+    const { id: foodId } = req.params;
     const foodIndex = foods.findIndex(food=> food.id === foodId);
     if(foodIndex !== -1){
       foods.splice(foodIndex, 1);
@@ -65,15 +68,12 @@ const main = async (): Promise<void> => {
   })
 
   app.post('/login', (req, res)=>{
-    // const validUsername: string = process.env.VALID_USERNAME;
-    // const validPassword: string = process.env.VALID_PASSWORD;
-    const validUsername: string = "Ben";
-    const validPassword: string = "admin";
+    const validUsername = process.env.VALID_USERNAME;
+    const validPassword = process.env.VALID_PASSWORD;
     const { username, password } = req.body;
 
     if(username===validUsername && password===validPassword){
       const signedToken = jwt.sign({user:username}, privateKey);
-
       return res.status(200).send({token:signedToken});
     }
     return res.status(401).send({error:"invalid login credentials"});
