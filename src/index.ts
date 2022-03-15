@@ -6,24 +6,26 @@ import {randomUUID, randomBytes} from 'crypto';
 const jwt = require('jsonwebtoken');
 const morgan = require('morgan');
 const PORT = parseInt(process.env.PORT || '3000', 10);
+const privateKey = process.env.PRIVATE_KEY || randomBytes(64).toString();
 
 const main = async (): Promise<void> => {
 //TODO: start your application here
   const app = express();
+  const foodRouter = Router();
   let foods : FoodEntry[] = [];
 
   app.use(express.json());
-
   app.use(morgan('combined'));
+  app.disable('x-powered-by');
 
-  app.get('/food', (req, res)=>{
+  foodRouter.get('', (req, res)=>{
     if(foods.length){
       return res.sendStatus(204);
     }
     return res.status(200).send(foods);
   })
 
-  app.get('/food/:id', (req, res) =>{
+  foodRouter.get('/:id', (req, res) =>{
     const foodId = req.params.id.toString();
     const foodExists = foods.find(food => food.id === foodId);
     if(foodExists===undefined){
@@ -32,7 +34,7 @@ const main = async (): Promise<void> => {
     return res.status(200).send(foodExists);
   })
 
-  app.post('/food', (req, res)=>{
+  foodRouter.post('', (req, res)=>{
     const newFoodEntry: FoodEntry ={
       id: randomUUID().toString(),
       createdAt: new Date(),
@@ -42,7 +44,7 @@ const main = async (): Promise<void> => {
     return res.status(201).send(newFoodEntry);
   })
 
-  app.put('/food/:id', (req, res)=>{
+  foodRouter.put('/:id', (req, res)=>{
     const foodId = req.params.id.toString();
     const foodDetails = req.body;
     const foodIndex = foods.findIndex(food=>food.id === foodId);
@@ -53,7 +55,7 @@ const main = async (): Promise<void> => {
     return res.status(200).send(foods[foodIndex]);
   })
 
-  app.delete('/food/:id', (req, res)=>{
+  foodRouter.delete('/:id', (req, res)=>{
     const foodId = req.params.id.toString();
     const foodIndex = foods.findIndex(food=> food.id === foodId);
     if(foodIndex !== -1){
@@ -70,13 +72,14 @@ const main = async (): Promise<void> => {
     const { username, password } = req.body;
 
     if(username===validUsername && password===validPassword){
-      const privateKey = randomBytes(64).toString();
       const signedToken = jwt.sign({user:username}, privateKey);
 
       return res.status(200).send({token:signedToken});
     }
     return res.status(401).send({error:"invalid login credentials"});
   })
+
+  app.use('/food', authenticateToken, foodRouter);
 
   app.use('*',(req, res)=>{
     return res.status(404).send({error:'not found'});
@@ -89,6 +92,21 @@ const main = async (): Promise<void> => {
   app.listen(PORT, '0.0.0.0', ()=>{
     console.log(`Listening on port ${PORT}...`);
   });
+
+
+  function authenticateToken(req:Request, res:Response, next:NextFunction){
+    const { authorization: authHeader } = req.headers;
+    const token = authHeader && authHeader.split(' ')[1];
+    if(!token){
+      return res.sendStatus(401);
+    }
+    jwt.verify(token, privateKey, (err:Error)=>{
+      if(err){
+        return res.sendStatus(401);
+      }
+    next();
+    });
+  }
 
 }
 
