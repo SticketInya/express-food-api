@@ -55,8 +55,8 @@ const main = async (): Promise<void> => {
     if (foodIndex === -1) {
       return res.status(404).send('food not found');
     }
-    foods[foodIndex].name = updateName;
-    foods[foodIndex].details = updateDetails;
+    foods[foodIndex].name = updateName ? updateName : foods[foodIndex].name;
+    foods[foodIndex].details = updateDetails ? updateDetails : foods[foodIndex].details;
     return res.status(200).send(foods[foodIndex]);
   });
 
