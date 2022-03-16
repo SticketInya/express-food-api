@@ -1,6 +1,6 @@
 //TODO: build your application here
 import express, { NextFunction, Request, Response, Router } from 'express';
-import { FoodEntry, FoodEntryDetails } from './interfaces';
+import { FoodEntry, FoodEntryDetails, FoodEntryUpdateOptions } from './interfaces';
 import { randomUUID, randomBytes } from 'crypto';
 import 'dotenv/config';
 
@@ -50,13 +50,12 @@ const main = async (): Promise<void> => {
 
   foodRouter.put('/:id', (req, res) => {
     const { id: foodId } = req.params;
-    const { name: updateName, details: updateDetails } = req.body as { name: string; details: FoodEntryDetails };
+    const updateData = req.body as FoodEntryUpdateOptions;
     const foodIndex = foods.findIndex((food) => food.id === foodId);
     if (foodIndex === -1) {
       return res.status(404).send('food not found');
     }
-    foods[foodIndex].name = updateName ? updateName : foods[foodIndex].name;
-    foods[foodIndex].details = updateDetails ? updateDetails : foods[foodIndex].details;
+    updateFoodEntry(foods, updateData, foodIndex);
     return res.status(200).send(foods[foodIndex]);
   });
 
@@ -95,25 +94,27 @@ const main = async (): Promise<void> => {
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`Listening on port ${PORT}...`);
   });
-
-  function authenticateToken(req: Request, res: Response, next: NextFunction): unknown {
-    const { authorization } = req.headers;
-    const authHeader = authorization?.split(' ');
-    const isBearer = authHeader && authHeader[0] === 'Bearer';
-    if (!isBearer) {
-      return res.sendStatus(401);
-    }
-    const token = authHeader[1];
-    if (!token) {
-      return res.sendStatus(401);
-    }
-    jwt.verify(token, privateKey, (err) => {
-      if (err) {
-        return res.sendStatus(401);
-      }
-      next();
-    });
-  }
 };
 
 main().catch(console.error);
+
+function updateFoodEntry(database: FoodEntry[], updateData: FoodEntryUpdateOptions, entryIndex: number): void {
+  database[entryIndex].name = updateData.name ? updateData.name : database[entryIndex].name;
+  database[entryIndex].details = updateData.details ? updateData.details : database[entryIndex].details;
+}
+
+function authenticateToken(req: Request, res: Response, next: NextFunction): unknown {
+  const { authorization } = req.headers;
+  const authHeader = authorization?.split(' ');
+  const token = authHeader?.[1];
+  const isBearer = authHeader?.[0] === 'Bearer';
+  if (!isBearer || !token) {
+    return res.sendStatus(401);
+  }
+  jwt.verify(token, privateKey, (err) => {
+    if (err) {
+      return res.sendStatus(401);
+    }
+    next();
+  });
+}
