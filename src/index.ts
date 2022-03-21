@@ -1,8 +1,8 @@
 //TODO: build your application here
 import express, { NextFunction, Request, Response } from 'express';
 import 'dotenv/config';
-import { foodRouter } from './foodrouter';
-import { authenticateToken, signToken } from './utils';
+import { foodRouter } from './FoodRouter/foodrouter';
+import { authenticateToken, signToken } from './Authentication/authentication';
 import morgan = require('morgan');
 
 const PORT = parseInt(process.env.PORT || '3000', 10);

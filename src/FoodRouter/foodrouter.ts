@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response, Router } from 'express';
-import { FoodEntry, FoodEntryDetails, FoodEntryUpdateOptions } from './interfaces';
+import { FoodEntry, FoodEntryDetails, FoodEntryUpdateOptions } from '../Utils/interfaces';
 import { randomUUID } from 'crypto';
-import { updateFoodEntry } from './utils';
+import { updateFoodEntry } from '../Utils/utils';
 
 const foodRouter = Router();
 const foods: FoodEntry[] = [];

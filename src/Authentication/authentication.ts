@@ -1,14 +1,8 @@
-import { FoodEntry, FoodEntryUpdateOptions } from './interfaces';
 import { NextFunction, Request, Response } from 'express';
 import { randomBytes } from 'crypto';
 import jwt = require('jsonwebtoken');
 
 const privateKey = process.env.PRIVATE_KEY || randomBytes(64).toString();
-
-export function updateFoodEntry(database: FoodEntry[], updateData: FoodEntryUpdateOptions, entryIndex: number): void {
-  database[entryIndex].name = updateData.name ? updateData.name : database[entryIndex].name;
-  database[entryIndex].details = updateData.details ? updateData.details : database[entryIndex].details;
-}
 
 export function authenticateToken(req: Request, res: Response, next: NextFunction): unknown {
   const { authorization } = req.headers;
