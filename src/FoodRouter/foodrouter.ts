@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response, Router } from 'express';
 import { FoodEntry, FoodEntryDetails, FoodEntryUpdateOptions } from '../Utils/interfaces';
 import { randomUUID } from 'crypto';
-import { updateFoodEntry } from '../Utils/utils';
+import { updateFoodEntry, validateRequestBody } from '../Utils/utils';
 
 const foodRouter = Router();
 const foods: FoodEntry[] = [];
@@ -22,10 +22,10 @@ foodRouter.get('/:id', (req, res) => {
   return res.status(200).send(foodExists);
 });
 
-foodRouter.post('', (req, res) => {
+foodRouter.post('', validateRequestBody, (req, res) => {
   const { name, details } = req.body as { name: string; details: FoodEntryDetails };
   const newFoodEntry: FoodEntry = {
-    id: randomUUID().toString(),
+    id: randomUUID(),
     createdAt: new Date(),
     name: name,
     details: details,
