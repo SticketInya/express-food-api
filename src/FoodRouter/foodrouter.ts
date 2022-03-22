@@ -34,7 +34,7 @@ foodRouter.post('', validateRequestBody, (req, res) => {
   return res.status(201).send(newFoodEntry);
 });
 
-foodRouter.put('/:id', (req, res) => {
+foodRouter.put('/:id', validateRequestBody, (req, res) => {
   const { id: foodId } = req.params;
   const updateData = req.body as FoodEntryUpdateOptions;
   const foodIndex = foods.findIndex((food) => food.id === foodId);

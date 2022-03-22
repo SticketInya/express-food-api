@@ -8,23 +8,11 @@ export function updateFoodEntry(database: FoodEntry[], updateData: FoodEntryUpda
   database[entryIndex].details = updateData.details ? updateData.details : database[entryIndex].details;
 }
 
-export async function validateRequestBody(req: Request, res: Response, next: NextFunction): Promise<void> {
-  await requestBodySchema.validate(req.body).catch((err) => {
-    if (err) {
-      return res.sendStatus(400);
-    }
-  });
-  next();
+export async function validateRequestBody(req: Request, res: Response, next: NextFunction): Promise<unknown> {
+  try {
+    await requestBodySchema.validate(req.body);
+    next();
+  } catch {
+    return res.sendStatus(400);
+  }
 }
-
-// }
-// export function validateRequestBody(requestBodySchema: schema): unknown {
-//   return async (req: Request, res: Response, next: NextFunction) => {
-//     try {
-//       await requestBodySchema.validate(req.body);
-//       next();
-//     } catch {
-//       return res.sendStatus(400);
-//     }
-//   };
-// }
