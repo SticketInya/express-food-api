@@ -3,7 +3,7 @@ import express, { NextFunction, Request, Response } from 'express';
 import 'dotenv/config';
 import { foodRouter } from './FoodRouter/foodrouter';
 import { authenticateToken, signToken } from './Authentication/authentication';
-import morgan = require('morgan');
+import morgan from 'morgan';
 
 const PORT = parseInt(process.env.PORT || '3000', 10);
 const app = express();

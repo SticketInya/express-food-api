@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { randomBytes } from 'crypto';
-import jwt = require('jsonwebtoken');
+import { verify, sign } from 'jsonwebtoken';
 
 const privateKey = process.env.PRIVATE_KEY || randomBytes(64).toString();
 
@@ -12,7 +12,7 @@ export function authenticateToken(req: Request, res: Response, next: NextFunctio
   if (!isBearer || !token) {
     return res.sendStatus(401);
   }
-  jwt.verify(token, privateKey, (err) => {
+  verify(token, privateKey, (err) => {
     if (err) {
       return res.sendStatus(401);
     }
@@ -21,5 +21,5 @@ export function authenticateToken(req: Request, res: Response, next: NextFunctio
 }
 
 export function signToken(username: string): string {
-  return jwt.sign({ user: username }, privateKey);
+  return sign({ user: username }, privateKey);
 }
