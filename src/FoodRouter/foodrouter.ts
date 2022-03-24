@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response, Router } from 'express';
 import { FoodEntry, FoodEntryDetails, FoodEntryUpdateOptions } from '../Utils/interfaces';
-import { randomUUID } from 'crypto';
+// import { randomUUID } from 'crypto';
+import { v4 as uuidv4 } from 'uuid';
 import { updateFoodEntry, validateRequestBody } from '../Utils/utils';
 
 const foodRouter = Router();
@@ -24,8 +25,10 @@ foodRouter.get('/:id', (req, res) => {
 
 foodRouter.post('', validateRequestBody, (req, res) => {
   const { name, details } = req.body as { name: string; details: FoodEntryDetails };
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+  const randomUUID = uuidv4() as string;
   const newFoodEntry: FoodEntry = {
-    id: randomUUID(),
+    id: randomUUID,
     createdAt: new Date(),
     name: name,
     details: details,
