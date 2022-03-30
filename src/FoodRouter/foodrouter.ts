@@ -2,10 +2,13 @@ import { NextFunction, Request, Response, Router } from 'express';
 import { FoodEntry, FoodEntryDetails, FoodEntryUpdateOptions } from '../Utils/interfaces';
 // import { randomUUID } from 'crypto';
 import { v4 as uuidv4 } from 'uuid';
+import cors from 'cors';
 import { updateFoodEntry, validateRequestBody } from '../Utils/utils';
 
 const foodRouter = Router();
 const foods: FoodEntry[] = [];
+
+foodRouter.use(cors());
 
 foodRouter.get('', (req, res) => {
   if (!foods.length) {

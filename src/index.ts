@@ -4,6 +4,7 @@ import 'dotenv/config';
 import { foodRouter } from './FoodRouter/foodrouter';
 import { authenticateToken, signToken } from './Authentication/authentication';
 import morgan from 'morgan';
+import cors from 'cors';
 
 const PORT = parseInt(process.env.PORT || '3000', 10);
 const app = express();
@@ -11,6 +12,8 @@ const app = express();
 app.use(express.json());
 // eslint-disable-next-line @typescript-eslint/no-unsafe-call
 app.use(morgan('combined'));
+// eslint-disable-next-line @typescript-eslint/no-unsafe-call
+app.use(cors());
 app.disable('x-powered-by');
 
 app.use('/food', authenticateToken, foodRouter);
